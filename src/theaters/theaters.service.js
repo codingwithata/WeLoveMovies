@@ -1,24 +1,48 @@
-const db = require("../db/connection");
-const reduceProperties = require("../utils/reduce-properties");
+const knex = require("../db/connection");
 
-const reduceMovies = reduceProperties("theater_id", {
-  movie_id: ["movies", null, "movie_id"],
-  title: ["movies", null, "title"],
-  runtime_in_minutes: ["movies", null, "runtime_in_minutes"],
-  rating: ["movies", null, "rating"],
-  description: ["movies", null, "description"],
-  image_url: ["movies", null, "image_url"],
-});
+function getAllTheaters() {
+  return knex("theaters as t")
+    .join("movies_theaters as  mt", "t.theater_id", "mt.theater_id")
+    .join("movies as m", "m.movie_id", "mt.movie_id")
+    .select("*")
+    .then((data) => {
+      const formattedData = data.reduce((acc, dataItem) => {
+        const foundItem = acc.find((entry) => entry.theater_id === dataItem.theater_id);
+        const newMovie = {
+          movie_id: dataItem.movie_id,
+          title: dataItem.title,
+          runtime_in_minutes: dataItem.runtime_in_minutes,
+          rating: dataItem.rating,
+          description: dataItem.description,
+          image_url: dataItem.image_url,
+          is_showing: dataItem.is_showing,
+          theater_id: dataItem.theater_id,
+        };
 
-async function list() {
-  return db("theaters")
-    .join(
-      "movies_theaters",
-      "movies_theaters.theater_id",
-      "theaters.theater_id"
-    )
-    .join("movies", "movies.movie_id", "movies_theaters.movie_id")
-    .then(reduceMovies);
+        if (!foundItem) {
+          acc.push({
+            theater_id: dataItem.theater_id,
+            name: dataItem.name,
+            address_line_1: dataItem.address_line_1,
+            address_line_2: dataItem.address_line_2,
+            city: dataItem.city,
+            state: dataItem.state,
+            zip: dataItem.zip,
+            movies: [newMovie],
+          });
+        } else {
+          foundItem.movies.push(newMovie);
+        }
+
+        return acc;
+      }, []);
+
+      return formattedData;
+    });
+}
+
+function list() {
+  return getAllTheaters();
 }
 
 module.exports = {

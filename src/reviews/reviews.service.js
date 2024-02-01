@@ -1,42 +1,28 @@
-const db = require("../db/connection");
+const knex = require("../db/connection");
+const addCritic = require("../utils/addCritic");
 
-const tableName = "reviews";
-
-async function destroy(reviewId) {
-  // TODO: Write your code here
-  
+function update(newReview) {
+  return knex("reviews")
+    .where({ review_id: newReview.review_id })
+    .update(newReview, ["*"])
+    .then((data) => data[0]);
 }
 
-async function list(movie_id) {
-  // TODO: Write your code here
-  
+function read(reviewId) {
+  return knex("reviews").select("*").where({ review_id: reviewId }).first();
 }
 
-async function read(reviewId) {
-  // TODO: Write your code here
-  
+function getCriticById(criticId) {
+  return knex("critics").select("*").where({ critic_id: criticId }).first();
 }
 
-async function readCritic(critic_id) {
-  return db("critics").where({ critic_id }).first();
-}
-
-async function setCritic(review) {
-  review.critic = await readCritic(review.critic_id);
-  return review;
-}
-
-async function update(review) {
-  return db(tableName)
-    .where({ review_id: review.review_id })
-    .update(review, "*")
-    .then(() => read(review.review_id))
-    .then(setCritic);
+function destroy(reviewId) {
+  return knex("reviews").where({ review_id: reviewId }).del();
 }
 
 module.exports = {
-  destroy,
-  list,
-  read,
   update,
+  read,
+  getCriticById,
+  destroy,
 };
