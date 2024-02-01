@@ -1,5 +1,5 @@
 const knex = require("../db/connection");
-const addCritic = require("../utils/addCritic");
+const formatCriticData = require("../utils/formatCriticData");
 
 function list(isShowing) {
   if (isShowing === "true") {
@@ -15,7 +15,14 @@ function listAll() {
 function listOnlyShowing() {
   return knex("movies as m")
     .join("movies_theaters as mt", "m.movie_id", "mt.movie_id")
-    .select("m.movie_id", "m.title", "m.runtime_in_minutes", "rating", "description", "image_url")
+    .select(
+      "m.movie_id",
+      "m.title",
+      "m.runtime_in_minutes",
+      "rating",
+      "description",
+      "image_url"
+    )
     .groupBy("m.movie_id")
     .where({ is_showing: true });
 }
@@ -42,7 +49,7 @@ function listReviewsByMovieId(movieId) {
       "c.surname as critic.surname",
       "c.organization_name as critic.organization_name"
     )
-    .then(addCritic);
+    .then(formatCriticData);
 }
 
 module.exports = {

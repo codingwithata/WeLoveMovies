@@ -1,5 +1,5 @@
 const knex = require("../db/connection");
-const addCritic = require("../utils/addCritic");
+const formatCriticData = require("../utils/formatCriticData");
 
 function update(newReview) {
   return knex("reviews")

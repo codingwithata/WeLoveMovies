@@ -1,25 +1,25 @@
 const lodash = require("lodash");
 
-function addCritic(data) {
+function formatCriticData(data) {
   if (data) {
-    let formattedData;
+    let dataToBe;
 
     if (Array.isArray(data)) {
-      formattedData = data.map((review) => {
+      dataToBe = data.map((review) => {
         return Object.entries(review).reduce((accumulator, [key, value]) => {
           return lodash.set(accumulator, key, value);
         }, {});
       });
     } else {
-      formattedData = Object.entries(data).reduce((accumulator, [key, value]) => {
+      dataToBe = Object.entries(data).reduce((accumulator, [key, value]) => {
         return lodash.set(accumulator, key, value);
       }, {});
     }
 
-    return formattedData;
+    return dataToBe;
   }
 
   return data;
 }
 
-module.exports = addCritic;
+module.exports = formatCriticData;
